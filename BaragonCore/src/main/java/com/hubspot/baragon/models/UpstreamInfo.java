@@ -20,8 +20,8 @@ public class UpstreamInfo {
       return fromUnEncodedString(value);
     } else {
       String upstream = new String(BaseEncoding.base64Url().decode(split[0]), Charsets.UTF_8);
-      Optional<String> requestId = split.length > 1 ? Optional.of(split[1]) : Optional.<String>absent();
-      Optional<String> rackId = split.length > 2 ? Optional.of(split[2]) : Optional.<String>absent();
+      Optional<String> requestId = split.length > 1 && !split[1].equals("") ? Optional.of(split[1]) : Optional.<String>absent();
+      Optional<String> rackId = split.length > 2 && !split[2].equals("") ? Optional.of(split[2]) : Optional.<String>absent();
       return new UpstreamInfo(upstream, requestId, rackId);
     }
   }
