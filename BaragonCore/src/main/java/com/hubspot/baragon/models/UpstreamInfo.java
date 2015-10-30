@@ -57,14 +57,7 @@ public class UpstreamInfo {
   }
 
   public String toPath() {
-    String upstreamInfo = sanitizeUpstream(upstream);
-    if(requestId.isPresent()) {
-      upstreamInfo = String.format("%s|%s", upstreamInfo, requestId.get());
-    }
-    if (rackId.isPresent()) {
-      upstreamInfo = String.format("%s|%s", upstreamInfo, rackId.get());
-    }
-    return upstreamInfo;
+    return String.format("%s|%s|%s", sanitizeUpstream(upstream), requestId.or(""), rackId.or(""));
   }
 
   protected String sanitizeUpstream(String name) {
