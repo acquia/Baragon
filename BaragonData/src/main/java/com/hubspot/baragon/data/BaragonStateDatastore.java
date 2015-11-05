@@ -102,9 +102,9 @@ public class BaragonStateDatastore extends AbstractDataStore {
     String servicePath = String.format(SERVICE_FORMAT, serviceId);
     CuratorTransactionFinal transaction;
     if (nodeExists(servicePath)) {
-      transaction = curatorFramework.inTransaction().setData().forPath(String.format(SERVICE_FORMAT, serviceId), serialize(request.getLoadBalancerService())).and();
+      transaction = curatorFramework.inTransaction().setData().forPath(servicePath, serialize(request.getLoadBalancerService())).and();
     } else {
-      transaction = curatorFramework.inTransaction().create().forPath(String.format(SERVICE_FORMAT, serviceId), serialize(request.getLoadBalancerService())).and();
+      transaction = curatorFramework.inTransaction().create().forPath(servicePath, serialize(request.getLoadBalancerService())).and();
     }
 
     if (!request.getReplaceUpstreams().isEmpty()) {
@@ -118,7 +118,7 @@ public class BaragonStateDatastore extends AbstractDataStore {
         String addPath = String.format(UPSTREAM_FORMAT, serviceId, upstreamInfo.toPath());
         if (!nodeExists(addPath)) {
           Optional<String> matchingUpstreamPath = matchingUpstreamPath(currentUpstreams, upstreamInfo);
-          if (matchingUpstreamPath.isPresent()) {
+          if (matchingUpstreamPath.isPresent() && nodeExists(matchingUpstreamPath.get())) {
             transaction.delete().forPath(String.format(UPSTREAM_FORMAT, serviceId, matchingUpstreamPath.get()));
           }
           transaction.create().forPath(addPath).and();
@@ -135,7 +135,7 @@ public class BaragonStateDatastore extends AbstractDataStore {
         String addPath = String.format(UPSTREAM_FORMAT, serviceId, upstreamInfo.toPath());
         if (!nodeExists(addPath)) {
           Optional<String> matchingUpstreamPath = matchingUpstreamPath(currentUpstreams, upstreamInfo);
-          if (matchingUpstreamPath.isPresent()) {
+          if (matchingUpstreamPath.isPresent() && nodeExists(matchingUpstreamPath.get())) {
             transaction.delete().forPath(String.format(UPSTREAM_FORMAT, serviceId, matchingUpstreamPath.get()));
           }
           transaction.create().forPath(addPath).and();
@@ -157,7 +157,7 @@ public class BaragonStateDatastore extends AbstractDataStore {
   private String getRemovePath(Collection<UpstreamInfo> currentUpstreams, UpstreamInfo toRemove) {
     for (UpstreamInfo upstreamInfo : currentUpstreams) {
       if (upstreamInfo.getUpstream().equals(toRemove.getUpstream())) {
-        return upstreamInfo.toPath();
+        return upstreamInfo.getOriginalPath().or(upstreamInfo.toPath());
       }
     }
     return toRemove.toPath();
