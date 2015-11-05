@@ -120,7 +120,7 @@ public class BaragonStateDatastore extends AbstractDataStore {
           Optional<String> matchingUpstreamPath = matchingUpstreamPath(currentUpstreams, upstreamInfo);
           if (matchingUpstreamPath.isPresent()) {
             String matchingPath = String.format(UPSTREAM_FORMAT, serviceId, matchingUpstreamPath.get());
-            if (nodeExists(matchingPath) {
+            if (nodeExists(matchingPath)) {
               transaction.delete().forPath(matchingPath);
             }
           }
